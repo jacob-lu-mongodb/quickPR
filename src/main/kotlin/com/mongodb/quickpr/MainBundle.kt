@@ -1,13 +1,13 @@
-package com.github.jacob-lu-mongodb.quickpr
+package com.mongodb.quickpr
 
 import com.intellij.AbstractBundle
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.annotations.PropertyKey
 
 @NonNls
-private const val BUNDLE = "messages.MyBundle"
+private const val BUNDLE = "messages.MainBundle"
 
-object MyBundle : AbstractBundle(BUNDLE) {
+object MainBundle : AbstractBundle(BUNDLE) {
 
     @Suppress("SpreadOperator")
     @JvmStatic

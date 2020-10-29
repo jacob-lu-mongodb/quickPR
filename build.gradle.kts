@@ -42,6 +42,12 @@ repositories {
 }
 dependencies {
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.14.2")
+    implementation("org.kohsuke:github-api:1.116")
+    implementation("org.yaml:snakeyaml:1.27")
+    implementation("com.atlassian.jira:jira-rest-java-client-app:5.2.2") {
+        exclude("org.slf4j")
+    }
+    implementation("com.google.oauth-client:google-oauth-client:1.31.1")
 }
 
 // Configure gradle-intellij-plugin plugin.
@@ -54,7 +60,9 @@ intellij {
     updateSinceUntilBuild = true
 
     // Plugin Dependencies. Uses `platformPlugins` property from the gradle.properties file.
-    setPlugins(*platformPlugins.split(',').map(String::trim).filter(String::isNotEmpty).toTypedArray())
+    setPlugins(
+        *platformPlugins.split(',').map(String::trim).filter(String::isNotEmpty).toTypedArray()
+    )
 }
 
 // Configure detekt plugin.
@@ -79,6 +87,8 @@ tasks {
     listOf("compileKotlin", "compileTestKotlin").forEach {
         getByName<KotlinCompile>(it) {
             kotlinOptions.jvmTarget = "1.8"
+            kotlinOptions.apiVersion = "1.3"
+            kotlinOptions.languageVersion = "1.3"
         }
     }
 

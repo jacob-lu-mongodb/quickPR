@@ -1,19 +1,28 @@
 <idea-plugin>
-    <id>com.github.jacob-lu-mongodb.quickpr</id>
-    <name>quickPR</name>
-    <vendor>jacob-lu-mongodb</vendor>
+  <id>quickpr</id>
+  <name>QuickPR</name>
+  <vendor>jacob-lu-mongodb</vendor>
 
-    <!-- Product and plugin compatibility requirements -->
-    <!-- https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html -->
-    <depends>com.intellij.modules.platform</depends>
+  <!-- Product and plugin compatibility requirements -->
+  <!-- https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html -->
+  <depends>com.intellij.modules.platform</depends>
 
-    <extensions defaultExtensionNs="com.intellij">
-        <applicationService serviceImplementation="com.github.jacob-lu-mongodb.quickpr.services.MyApplicationService"/>
-        <projectService serviceImplementation="com.github.jacob-lu-mongodb.quickpr.services.MyProjectService"/>
-    </extensions>
-
-    <applicationListeners>
-        <listener class="com.github.jacob-lu-mongodb.quickpr.listeners.MyProjectManagerListener"
-                  topic="com.intellij.openapi.project.ProjectManagerListener"/>
-    </applicationListeners>
+  <actions>
+    <!--
+      See https://www.jetbrains.org/intellij/sdk/docs/basics/action_system.html#registering-actions-in-pluginxml
+      for information about the elements and attributes used for actions and groups.
+      This <action> element adds a static menu item in first position of the Tools menu that shows PopupDialogAction.
+      Note this element has no text or description attributes because translations for them are given
+      by action-id in the resource-bundle.
+      An <override-text> element is also used for demonstration purposes to show alternate text and description strings
+      for this action's entries in the MainMenu. (Which includes the ToolsMenu. Try commenting out the override-text
+      element and see how the menu text changes.) The alternate text and description attributes do not
+      appear here because they are defined by action-id in the resource-bundle.
+    -->
+    <action id="mainAction" class="com.mongodb.quickpr.actions.MainAction"
+      text="QuickPR">
+      <add-to-group group-id="ToolsMenu" anchor="first"/>
+      <keyboard-shortcut first-keystroke="control alt K" keymap="$default"/>
+    </action>
+  </actions>
 </idea-plugin>
