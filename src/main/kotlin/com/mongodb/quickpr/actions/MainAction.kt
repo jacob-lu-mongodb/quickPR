@@ -10,8 +10,6 @@ import com.mongodb.quickpr.jira.JIRA_HOME
 import com.mongodb.quickpr.jira.JiraClient
 import com.mongodb.quickpr.models.PRModel
 import com.mongodb.quickpr.ui.MainDialogWrapper
-import org.jetbrains.annotations.Nullable
-import org.jetbrains.annotations.SystemIndependent
 import org.kohsuke.github.GHPermissionType
 import org.kohsuke.github.GHPullRequest
 import org.kohsuke.github.GHRepository
@@ -57,12 +55,14 @@ class MainAction : AnAction {
     }
 
     private fun populateUi(event: AnActionEvent) {
-        val currentGitBranch = getCurrentGitBranch(event.project?.basePath)
+        val currentGitBranch = getCurrentGitBranch(event.project?.basePath!!)
 
         if (currentGitBranch == null) {
             Messages.showErrorDialog("No Git repo detected", "Error")
             return
         }
+
+        val gitRepoPath = getGitRepoPath(event.project?.basePath!!)
 
         val jiraConfig = JiraConfig.loadConfigFile(SettingsManager.loadSettings().jiraConfigPath)
 
@@ -75,16 +75,17 @@ class MainAction : AnAction {
             JiraClient(jiraConfig!!).getIssue(currentGitBranch)
         } catch (e: Exception) {
             Messages.showErrorDialog(
-                "There was an error contacting JIRA, issue with credentials?",
+                // TODO: add check
+                "There was an error fetching JIRA issue, invalid ticket number or issue with credentials?",
                 "Error"
             )
-            showUi(prModel, event, currentGitBranch)
+            showUi(prModel, event, currentGitBranch, gitRepoPath)
             return
         }
 
         if (issue == null) {
             Messages.showWarningDialog("No JIRA issue found for $currentGitBranch", "Warning")
-            showUi(prModel, event, currentGitBranch)
+            showUi(prModel, event, currentGitBranch, gitRepoPath)
             return
         }
 
@@ -102,13 +103,14 @@ class MainAction : AnAction {
             "$currentGitBranch: ${issue.summary}",
             JIRA_HOME + "/browse/" + currentGitBranch + "\n\n" + issue.description!!
         )
-        showUi(prModel, event, currentGitBranch)
+        showUi(prModel, event, currentGitBranch, gitRepoPath)
     }
 
     private fun showUi(
         model: PRModel,
         event: AnActionEvent,
-        currentGitBranch: String?
+        currentGitBranch: String?,
+        gitRepoPath: String
     ) {
         val action = fun(): Boolean {
             val github: GitHub? = try {
@@ -149,7 +151,7 @@ class MainAction : AnAction {
             }
 
             val gitHubRepo: GHRepository? = try {
-                github.getRepository("10gen/mms")
+                github.getRepository(gitRepoPath)
             } catch (e: Exception) {
                 var errorMsg: String? = null
 
@@ -179,6 +181,20 @@ class MainAction : AnAction {
                     "Error"
                 )
                 return false
+            }
+
+            val remoteBranch = try {
+                gitHubRepo.getBranch(currentGitBranch)
+            } catch (e: Exception) {
+                null
+            }
+
+            if (remoteBranch == null) {
+                Messages.showWarningDialog(
+                    "Cannot access remote branch. Did you push your changes?",
+                    "Warning"
+                )
+                return true
             }
 
             val pr: GHPullRequest? = try {
@@ -221,7 +237,7 @@ class MainAction : AnAction {
     }
 
     @Throws(IOException::class, InterruptedException::class)
-    fun getCurrentGitBranch(basePath: @Nullable @SystemIndependent String?): String? {
+    fun getCurrentGitBranch(basePath: String): String? {
         val process =
             Runtime.getRuntime().exec("git rev-parse --abbrev-ref HEAD", null, File(basePath))
         process.waitFor()
@@ -229,6 +245,18 @@ class MainAction : AnAction {
             InputStreamReader(process.inputStream)
         )
         return reader.readLine()
+    }
+
+    @Throws(IOException::class, InterruptedException::class)
+    fun getGitRepoPath(basePath: String): String {
+        val process =
+            Runtime.getRuntime().exec("git remote -v", null, File(basePath))
+        process.waitFor()
+        val reader = BufferedReader(
+            InputStreamReader(process.inputStream)
+        )
+        val line = reader.readLine()
+        return line.substring(line.indexOf(':') + 1, line.indexOf(".git"))
     }
 
     /**
