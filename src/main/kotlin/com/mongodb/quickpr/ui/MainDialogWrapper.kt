@@ -70,7 +70,7 @@ class MainDialogWrapper(
     }
 
     override fun doOKAction() {
-        if(doAction()) {
+        if (doAction()) {
             super.doOKAction()
         }
     }

@@ -12,7 +12,11 @@ import com.mongodb.quickpr.models.PRModel
 import com.mongodb.quickpr.ui.MainDialogWrapper
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.annotations.SystemIndependent
-import org.kohsuke.github.*
+import org.kohsuke.github.GHPermissionType
+import org.kohsuke.github.GHPullRequest
+import org.kohsuke.github.GHRepository
+import org.kohsuke.github.GitHub
+import org.kohsuke.github.GitHubBuilder
 import java.io.BufferedReader
 import java.io.File
 import java.io.IOException
@@ -106,18 +110,18 @@ class MainAction : AnAction {
         event: AnActionEvent,
         currentGitBranch: String?
     ) {
-        val action = fun() : Boolean {
+        val action = fun(): Boolean {
             val github: GitHub? = try {
                 GitHubBuilder().withOAuthToken(
                     SettingsManager.loadSettings().githubToken
                 ).build()
-            } catch(e: Exception) {
+            } catch (e: Exception) {
                 var errorMsg: String? = null
-                if(e.message != null && e.message!!.contains("Bad credentials")) {
+                if (e.message != null && e.message!!.contains("Bad credentials")) {
                     errorMsg = "Bad GitHub credentials"
                 }
 
-                if(errorMsg == null) {
+                if (errorMsg == null) {
                     null
                 } else {
                     Messages.showErrorDialog(
@@ -136,7 +140,7 @@ class MainAction : AnAction {
                 return false
             }
 
-            if(!github.isCredentialValid) {
+            if (!github.isCredentialValid) {
                 Messages.showErrorDialog(
                     "Invalid GitHub credentials",
                     "Error"
@@ -149,7 +153,7 @@ class MainAction : AnAction {
             } catch (e: Exception) {
                 var errorMsg: String? = null
 
-                if(errorMsg == null) {
+                if (errorMsg == null) {
                     null
                 } else {
                     Messages.showErrorDialog(
@@ -169,7 +173,7 @@ class MainAction : AnAction {
             }
 
             val permission = gitHubRepo.getPermission(github.myself)
-            if(!listOf(GHPermissionType.ADMIN, GHPermissionType.WRITE).contains(permission)) {
+            if (!listOf(GHPermissionType.ADMIN, GHPermissionType.WRITE).contains(permission)) {
                 Messages.showErrorDialog(
                     "Write permission is needed for the GitHub repo",
                     "Error"
@@ -186,11 +190,11 @@ class MainAction : AnAction {
                 )
             } catch (e: Exception) {
                 var errorMsg: String? = null
-                if(e.message != null && e.message!!.contains("A pull request already exists")) {
+                if (e.message != null && e.message!!.contains("A pull request already exists")) {
                     errorMsg = "There's an open PR already"
                 }
 
-                if(errorMsg == null) {
+                if (errorMsg == null) {
                     null
                 } else {
                     Messages.showErrorDialog(
