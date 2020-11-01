@@ -6,19 +6,20 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.ui.Messages
 import com.mongodb.quickpr.config.JiraConfig
 import com.mongodb.quickpr.config.SettingsManager
+import com.mongodb.quickpr.core.Err
+import com.mongodb.quickpr.core.Ok
+import com.mongodb.quickpr.core.SafeError
+import com.mongodb.quickpr.core.andThen
+import com.mongodb.quickpr.core.mapError
+import com.mongodb.quickpr.core.runResultTry
+import com.mongodb.quickpr.github.GitError
+import com.mongodb.quickpr.github.GitUtils
 import com.mongodb.quickpr.jira.JIRA_HOME
 import com.mongodb.quickpr.jira.JiraClient
+import com.mongodb.quickpr.jira.JiraError
 import com.mongodb.quickpr.models.PRModel
 import com.mongodb.quickpr.ui.MainDialogWrapper
-import org.kohsuke.github.GHPermissionType
-import org.kohsuke.github.GHPullRequest
 import org.kohsuke.github.GHRepository
-import org.kohsuke.github.GitHub
-import org.kohsuke.github.GitHubBuilder
-import java.io.BufferedReader
-import java.io.File
-import java.io.IOException
-import java.io.InputStreamReader
 import javax.swing.Icon
 
 class MainAction : AnAction {
@@ -45,218 +46,88 @@ class MainAction : AnAction {
 
     override fun actionPerformed(event: AnActionEvent) {
         val settings = SettingsManager.loadSettings()
-        val jiraConfig = JiraConfig.loadConfigFile(settings.jiraConfigPath)
+        val settingValidationError = SettingsManager.validateSettings(settings)
 
-        if (settings.githubToken.isBlank() || jiraConfig == null) {
-            SettingsAction("QuickPR Settings", null, null).actionPerformed(event)
+        if (settingValidationError != null) {
+            SettingsAction.invokeAction()
         }
 
-        populateUi(event)
+        populateAndShowUi(event.project?.basePath!!)
     }
 
-    private fun populateUi(event: AnActionEvent) {
-        val currentGitBranch = getCurrentGitBranch(event.project?.basePath!!)
+    private fun populateAndShowUi(projectPath: String) {
+        val result = runResultTry<Any, SafeError> {
+            val settings = SettingsManager.loadSettings()
 
-        if (currentGitBranch == null) {
-            Messages.showErrorDialog("No Git repo detected", "Error")
-            return
-        }
+            val repoPath = GitUtils.getRepoPath(projectPath).abortOnError()
+            val repo = GitUtils.getRepo(settings.githubToken, repoPath)
+                .abortOnError()
 
-        val gitRepoPath = getGitRepoPath(event.project?.basePath!!)
+            val branchName = GitUtils.getBranchName(projectPath).abortOnError()
+            GitUtils.getRemoteBranch(repo, branchName).abortOnError()
 
-        val jiraConfig = JiraConfig.loadConfigFile(SettingsManager.loadSettings().jiraConfigPath)
+            val jiraConfig =
+                JiraConfig.loadConfigFile(SettingsManager.loadSettings().jiraConfigPath)
+                    .abortOnError()
+            val jiraIssue = JiraClient(jiraConfig).getIssue(branchName).abortOnError()
 
-        var prModel = PRModel(
-            "$currentGitBranch:",
-            "$JIRA_HOME/browse/$currentGitBranch"
-        )
+            val existingPrResult = GitUtils.getPrByBranch(branchName)
+            if (existingPrResult is Ok) {
+                BrowserUtil.browse(existingPrResult.value.htmlUrl)
+                existingPrResult.andThen { Err(GitError.PR_ALREADY_EXISTS) }.abortOnError()
+            }
 
-        val issue = try {
-            JiraClient(jiraConfig!!).getIssue(currentGitBranch)
-        } catch (e: Exception) {
-            Messages.showErrorDialog(
-                // TODO: add check
-                "There was an error fetching JIRA issue, invalid ticket number or issue with credentials?",
-                "Error"
+            val prModel = PRModel(
+                "$branchName: ${jiraIssue.summary}",
+                JIRA_HOME + "/browse/" + branchName + "\n\n" + jiraIssue.description!!
             )
-            showUi(prModel, event, currentGitBranch, gitRepoPath)
-            return
+            showUi(repo, prModel, branchName)
+
+            Ok("")
+        }.mapError {
+            when (it) {
+                GitError.NOT_GIT_REPO -> "Project directory is not a Git repo"
+                GitError.BAD_CREDENTIALS -> "Bad GitHub credentials"
+                GitError.INVALID_CREDENTIALS -> "Invalid GitHub credentials"
+                GitError.NO_WRITE_PERMISSION_TO_REPO -> "Write permission to the remote repo is needed"
+                GitError.REMOTE_BRANCH_NOT_FOUND -> "Error accessing remote branch, did you push your commits?"
+                GitError.PR_ALREADY_EXISTS -> "There's already an open pull request"
+                JiraError.ISSUE_NOT_FOUND -> "Error fetching JIRA issue, invalid ticket number or issue with credentials?"
+                else -> "An error occurred"
+            }
         }
 
-        if (issue == null) {
-            Messages.showWarningDialog("No JIRA issue found for $currentGitBranch", "Warning")
-            showUi(prModel, event, currentGitBranch, gitRepoPath)
-            return
+        if (result is Err) {
+            Messages.showErrorDialog(result.error, "Error")
         }
-
-        val existingPr = getExistingPr()
-        if (existingPr != null) {
-            Messages.showWarningDialog(
-                "There's already an open pull request: " + existingPr.id,
-                "Existing PR"
-            )
-            BrowserUtil.browse(existingPr.htmlUrl)
-            return
-        }
-
-        prModel = PRModel(
-            "$currentGitBranch: ${issue.summary}",
-            JIRA_HOME + "/browse/" + currentGitBranch + "\n\n" + issue.description!!
-        )
-        showUi(prModel, event, currentGitBranch, gitRepoPath)
     }
 
     private fun showUi(
-        model: PRModel,
-        event: AnActionEvent,
-        currentGitBranch: String?,
-        gitRepoPath: String
+        repo: GHRepository,
+        prModel: PRModel,
+        gitBranch: String
     ) {
         val action = fun(): Boolean {
-            val github: GitHub? = try {
-                GitHubBuilder().withOAuthToken(
-                    SettingsManager.loadSettings().githubToken
-                ).build()
-            } catch (e: Exception) {
-                var errorMsg: String? = null
-                if (e.message != null && e.message!!.contains("Bad credentials")) {
-                    errorMsg = "Bad GitHub credentials"
-                }
-
-                if (errorMsg == null) {
-                    null
-                } else {
-                    Messages.showErrorDialog(
-                        errorMsg,
-                        "Error"
-                    )
-                    return false
+            val prResult = GitUtils.createPr(repo, prModel, gitBranch).mapError {
+                when (it) {
+                    GitError.PR_ALREADY_EXISTS -> "There's already an open pull request"
+                    else -> "There was an error creating PR"
                 }
             }
 
-            if (github == null) {
-                Messages.showErrorDialog(
-                    "There was an error contacting GitHub",
-                    "Error"
-                )
-                return false
-            }
-
-            if (!github.isCredentialValid) {
-                Messages.showErrorDialog(
-                    "Invalid GitHub credentials",
-                    "Error"
-                )
-                return false
-            }
-
-            val gitHubRepo: GHRepository? = try {
-                github.getRepository(gitRepoPath)
-            } catch (e: Exception) {
-                var errorMsg: String? = null
-
-                if (errorMsg == null) {
-                    null
-                } else {
-                    Messages.showErrorDialog(
-                        errorMsg,
-                        "Error"
-                    )
-                    return false
+            return when (prResult) {
+                is Ok -> {
+                    BrowserUtil.browse(prResult.value.htmlUrl)
+                    true
+                }
+                is Err -> {
+                    Messages.showErrorDialog(prResult.error, "Error")
+                    false
                 }
             }
-
-            if (gitHubRepo == null) {
-                Messages.showErrorDialog(
-                    "There was an error accessing the GitHub repo",
-                    "Error"
-                )
-                return false
-            }
-
-            val permission = gitHubRepo.getPermission(github.myself)
-            if (!listOf(GHPermissionType.ADMIN, GHPermissionType.WRITE).contains(permission)) {
-                Messages.showErrorDialog(
-                    "Write permission is needed for the GitHub repo",
-                    "Error"
-                )
-                return false
-            }
-
-            val remoteBranch = try {
-                gitHubRepo.getBranch(currentGitBranch)
-            } catch (e: Exception) {
-                null
-            }
-
-            if (remoteBranch == null) {
-                Messages.showWarningDialog(
-                    "Cannot access remote branch. Did you push your changes?",
-                    "Warning"
-                )
-                return true
-            }
-
-            val pr: GHPullRequest? = try {
-                gitHubRepo.createPullRequest(
-                    model.title,
-                    currentGitBranch,
-                    "master",
-                    model.description
-                )
-            } catch (e: Exception) {
-                var errorMsg: String? = null
-                if (e.message != null && e.message!!.contains("A pull request already exists")) {
-                    errorMsg = "There's an open PR already"
-                }
-
-                if (errorMsg == null) {
-                    null
-                } else {
-                    Messages.showErrorDialog(
-                        errorMsg,
-                        "Error"
-                    )
-                    return false
-                }
-            }
-
-            if (pr == null) {
-                Messages.showErrorDialog(
-                    "There was an error creating PR",
-                    "Error"
-                )
-                return false
-            }
-
-            BrowserUtil.browse(pr.htmlUrl)
-            return true
         }
 
-        MainDialogWrapper(model, action, event).show()
-    }
-
-    @Throws(IOException::class, InterruptedException::class)
-    fun getCurrentGitBranch(basePath: String): String? {
-        val process =
-            Runtime.getRuntime().exec("git rev-parse --abbrev-ref HEAD", null, File(basePath))
-        process.waitFor()
-        val reader = BufferedReader(
-            InputStreamReader(process.inputStream)
-        )
-        return reader.readLine()
-    }
-
-    @Throws(IOException::class, InterruptedException::class)
-    fun getGitRepoPath(basePath: String): String {
-        val process =
-            Runtime.getRuntime().exec("git remote -v", null, File(basePath))
-        process.waitFor()
-        val reader = BufferedReader(
-            InputStreamReader(process.inputStream)
-        )
-        val line = reader.readLine()
-        return line.substring(line.indexOf(':') + 1, line.indexOf(".git"))
+        MainDialogWrapper(prModel, action).show()
     }
 
     /**
@@ -269,12 +140,5 @@ class MainAction : AnAction {
         // Set the availability based on whether a project is open
         val project = e.project
         e.presentation.isEnabledAndVisible = project != null
-    }
-
-    private fun getExistingPr(): GHPullRequest? {
-        // TODO: find a more efficient way of getting existing PR
-        // val existingPr = repo.getPullRequests(GHIssueState.OPEN)
-        //      .firstOrNull { pr -> pr.head.ref == currentGitBranch && pr.state == GHIssueState.OPEN }
-        return null
     }
 }

@@ -24,5 +24,8 @@
       <add-to-group group-id="ToolsMenu" anchor="first"/>
       <keyboard-shortcut first-keystroke="control alt K" keymap="$default"/>
     </action>
+    <action id="settingsAction" class="com.mongodb.quickpr.actions.SettingsAction"
+      text="QuickPR Settings">
+    </action>
   </actions>
 </idea-plugin>

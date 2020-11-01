@@ -2,7 +2,9 @@ package com.mongodb.quickpr.actions
 
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.actionSystem.impl.SimpleDataContext
 import com.mongodb.quickpr.config.JiraConfig
+import com.mongodb.quickpr.config.SettingsManager
 import com.mongodb.quickpr.config.SettingsManager.loadSettings
 import com.mongodb.quickpr.config.SettingsManager.saveSettings
 import com.mongodb.quickpr.models.SettingsModel
@@ -24,25 +26,30 @@ class SettingsAction : AnAction {
 
         val newSettings = savedSettings.copy()
         if (newSettings.jiraConfigPath.isBlank()) {
-            newSettings.jiraConfigPath =
-                FilenameUtils.concat(System.getProperty("user.home"), ".mdbutils/config.yaml")
+            newSettings.jiraConfigPath = SettingsManager.getDefaultJiraConfigFilePath()
         }
 
-        val validateSettings = fun(settings: SettingsModel): String? {
-            if (JiraConfig.loadConfigFile(settings.jiraConfigPath) == null) {
-                return "JIRA config file not found or invalid"
-            }
-            if (settings.githubToken.isBlank()) {
-                return "GitHub token is empty"
-            }
-            return null
-        }
-
-        if (SettingsDialogWrapper(newSettings, validateSettings).showAndGet()) {
+        if (SettingsDialogWrapper(newSettings, SettingsManager::validateSettings).showAndGet()) {
             // user pressed OK
             if (savedSettings != newSettings) {
                 saveSettings(newSettings)
             }
+        }
+    }
+
+    companion object {
+        fun invokeAction() {
+            SettingsAction(
+                "QuickPR Settings",
+                null,
+                null
+            ).actionPerformed(
+                AnActionEvent.createFromDataContext(
+                    "code",
+                    null,
+                    SimpleDataContext.getSimpleContext("dummy", "dummy")
+                )
+            )
         }
     }
 }

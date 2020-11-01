@@ -7,51 +7,56 @@ import com.atlassian.jira.rest.client.internal.async.AsynchronousJiraRestClientF
 import com.google.api.client.auth.oauth.OAuthParameters
 import com.google.api.client.http.GenericUrl
 import com.mongodb.quickpr.config.JiraConfig
-import org.codehaus.jettison.json.JSONException
-import java.io.IOException
+import com.mongodb.quickpr.core.Err
+import com.mongodb.quickpr.core.Ok
+import com.mongodb.quickpr.core.SafeError
+import com.mongodb.quickpr.core.SafeResult
 import java.net.URI
-import java.net.URISyntaxException
 import java.security.NoSuchAlgorithmException
 import java.security.spec.InvalidKeySpecException
 
 const val JIRA_HOME = "https://jira.mongodb.org"
 
 class JiraClient(private val jiraConfig: JiraConfig) {
-    @Throws(URISyntaxException::class, JSONException::class, IOException::class)
-    fun getIssue(issueNumber: String): Issue? {
-        val factory = AsynchronousJiraRestClientFactory()
+    fun getIssue(issueNumber: String): SafeResult<Issue, SafeError> {
+        try {
+            val factory = AsynchronousJiraRestClientFactory()
 
-        // https://bitbucket.org/atlassian/jira-rest-java-client/src/master/test/src/test/java/samples/
-        // https://developer.atlassian.com/cloud/jira/platform/jira-rest-api-oauth-authentication/
+            // https://bitbucket.org/atlassian/jira-rest-java-client/src/master/test/src/test/java/samples/
+            // https://developer.atlassian.com/cloud/jira/platform/jira-rest-api-oauth-authentication/
 
-        val parameters = getOAuthParameters(
-            jiraConfig.accessToken,
-            jiraConfig.accessTokenSecret,
-            jiraConfig.consumerKey,
-            jiraConfig.privateKey
-        )
+            val parameters = getOAuthParameters(
+                jiraConfig.accessToken,
+                jiraConfig.accessTokenSecret,
+                jiraConfig.consumerKey,
+                jiraConfig.privateKey
+            )
 
-        val restClient = factory.create(
-            URI(JIRA_HOME)
-        ) { builder ->
-            val methodField =
-                DefaultRequest.DefaultRequestBuilder::class.java.getDeclaredField("method")
-            methodField.isAccessible = true
-            val method = methodField.get(builder) as Request.Method
+            val restClient = factory.create(
+                URI(JIRA_HOME)
+            ) { builder ->
+                val methodField =
+                    DefaultRequest.DefaultRequestBuilder::class.java.getDeclaredField("method")
+                methodField.isAccessible = true
+                val method = methodField.get(builder) as Request.Method
 
-            val uriField =
-                DefaultRequest.DefaultRequestBuilder::class.java.getDeclaredField("uri")
-            uriField.isAccessible = true
-            val uri = uriField.get(builder) as URI
+                val uriField =
+                    DefaultRequest.DefaultRequestBuilder::class.java.getDeclaredField("uri")
+                uriField.isAccessible = true
+                val uri = uriField.get(builder) as URI
 
-            parameters.computeNonce()
-            parameters.computeTimestamp()
-            parameters.computeSignature(method.name, GenericUrl(uri))
+                parameters.computeNonce()
+                parameters.computeTimestamp()
+                parameters.computeSignature(method.name, GenericUrl(uri))
 
-            builder.setHeader("Authorization", parameters.authorizationHeader)
-        }
-        restClient.use { restClient ->
-            return restClient.issueClient.getIssue(issueNumber).claim()
+                builder.setHeader("Authorization", parameters.authorizationHeader)
+            }
+            restClient.use { restClient ->
+                return Ok(restClient.issueClient.getIssue(issueNumber).claim())
+            }
+        } catch (e: Exception) {
+            // TODO: check
+            return Err(JiraError.ISSUE_NOT_FOUND)
         }
     }
 
@@ -86,4 +91,8 @@ class JiraClient(private val jiraConfig: JiraConfig) {
         oAuthAccessToken.verifier = secret
         return oAuthAccessToken.createParameters()
     }
+}
+
+enum class JiraError : SafeError {
+    ISSUE_NOT_FOUND
 }

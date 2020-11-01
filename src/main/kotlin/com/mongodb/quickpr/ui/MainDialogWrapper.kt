@@ -1,6 +1,5 @@
 package com.mongodb.quickpr.ui
 
-import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.ui.layout.panel
 import com.mongodb.quickpr.actions.SettingsAction
@@ -16,8 +15,7 @@ import javax.swing.event.DocumentListener
 
 class MainDialogWrapper(
     private val model: PRModel,
-    private val doAction: () -> Boolean,
-    private val actionEvent: AnActionEvent
+    private val doAction: () -> Boolean
 ) :
     DialogWrapper(true) {
     override fun createCenterPanel(): JComponent {
@@ -64,7 +62,7 @@ class MainDialogWrapper(
     private fun createSettingsAction(): Action {
         return object : AbstractAction("Settings") {
             override fun actionPerformed(e: ActionEvent?) {
-                SettingsAction("QuickPR Settings", null, null).actionPerformed(actionEvent)
+                SettingsAction.invokeAction()
             }
         }
     }

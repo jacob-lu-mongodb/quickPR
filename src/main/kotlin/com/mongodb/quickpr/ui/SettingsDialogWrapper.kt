@@ -3,6 +3,7 @@ package com.mongodb.quickpr.ui
 import com.intellij.ide.BrowserUtil
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.ui.Messages
+import com.intellij.openapi.ui.ValidationInfo
 import com.intellij.ui.layout.panel
 import com.mongodb.quickpr.models.SettingsModel
 import javax.swing.JComponent
@@ -79,17 +80,13 @@ class SettingsDialogWrapper(private val model: SettingsModel, private val valida
         }
     }
 
-    override fun doOKAction() {
-        val validationMsg = validateSettings(model)
-        if (validationMsg == null) {
-            super.doOKAction()
-        } else {
-            Messages.showWarningDialog(validationMsg, "Invalid Setting")
-        }
+    override fun doValidate(): ValidationInfo? {
+        return validateSettings(model)?.let { ValidationInfo(it) }
     }
 
     init {
         init()
+        startTrackingValidation()
         title = "QuickPR Settings"
     }
 }
