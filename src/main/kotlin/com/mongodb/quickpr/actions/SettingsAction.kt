@@ -3,13 +3,10 @@ package com.mongodb.quickpr.actions
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.impl.SimpleDataContext
-import com.mongodb.quickpr.config.JiraConfig
 import com.mongodb.quickpr.config.SettingsManager
 import com.mongodb.quickpr.config.SettingsManager.loadSettings
 import com.mongodb.quickpr.config.SettingsManager.saveSettings
-import com.mongodb.quickpr.models.SettingsModel
 import com.mongodb.quickpr.ui.SettingsDialogWrapper
-import org.apache.commons.io.FilenameUtils
 import javax.swing.Icon
 
 class SettingsAction : AnAction {
