@@ -2,7 +2,7 @@ package com.mongodb.quickpr.jira
 
 import com.google.api.client.auth.oauth.OAuthGetAccessToken
 import com.google.api.client.auth.oauth.OAuthRsaSigner
-import com.google.api.client.http.apache.ApacheHttpTransport
+import com.google.api.client.http.apache.v2.ApacheHttpTransport
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.bouncycastle.openssl.PEMKeyPair
 import org.bouncycastle.openssl.PEMParser
