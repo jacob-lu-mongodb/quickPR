@@ -9,7 +9,6 @@ import com.mongodb.quickpr.config.SettingsManager
 import com.mongodb.quickpr.core.Err
 import com.mongodb.quickpr.core.Ok
 import com.mongodb.quickpr.core.SafeError
-import com.mongodb.quickpr.core.andThen
 import com.mongodb.quickpr.core.mapError
 import com.mongodb.quickpr.core.runResultTry
 import com.mongodb.quickpr.github.GitError
@@ -74,7 +73,7 @@ class MainAction : AnAction {
             val existingPrResult = GitUtils.getPrByBranch(branchName)
             if (existingPrResult is Ok) {
                 BrowserUtil.browse(existingPrResult.value.htmlUrl)
-                existingPrResult.andThen { Err(GitError.PR_ALREADY_EXISTS) }.abortOnError()
+                abortWithError(GitError.PR_ALREADY_EXISTS)
             }
 
             val prModel = PRModel(
@@ -92,8 +91,8 @@ class MainAction : AnAction {
                 GitError.NO_WRITE_PERMISSION_TO_REPO -> "Write permission to the remote repo is needed"
                 GitError.REMOTE_BRANCH_NOT_FOUND -> "Error accessing remote branch, did you push your commits?"
                 GitError.PR_ALREADY_EXISTS -> "There's already an open pull request"
-                JiraError.ISSUE_NOT_FOUND ->
-                    "Error fetching JIRA issue, invalid ticket number or issue with credentials?"
+                JiraError.ISSUE_NOT_FOUND -> "JIRA issue not found"
+                JiraError.AUTHENTICATION_ERROR, JiraError.AUTHORIZATION_ERROR -> "Bad JIRA credentials"
                 else -> "An error occurred"
             }
         }

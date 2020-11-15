@@ -49,6 +49,7 @@ fun <T, E> runResultTry(block: RunResultTryContext<E>.() -> SafeResult<T, E>): S
     try {
         RunResultTryContext<E>().block()
     } catch (ex: RunResultTryAbortion) {
+        @Suppress("UNCHECKED_CAST")
         Err(ex.err as E)
     }
 
@@ -58,6 +59,10 @@ class RunResultTryContext<E> {
             is Ok -> value
             is Err -> throw RunResultTryAbortion(error as Any)
         }
+
+    fun abortWithError(error: E) {
+        throw RunResultTryAbortion(error as Any)
+    }
 }
 
 private class RunResultTryAbortion(val err: Any) : Exception()

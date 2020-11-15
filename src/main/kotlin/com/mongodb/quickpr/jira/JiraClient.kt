@@ -2,11 +2,14 @@ package com.mongodb.quickpr.jira
 
 import com.atlassian.httpclient.apache.httpcomponents.DefaultRequest
 import com.atlassian.httpclient.api.Request
+import com.atlassian.jira.rest.client.api.RestClientException
 import com.atlassian.jira.rest.client.api.domain.Issue
 import com.atlassian.jira.rest.client.internal.async.AsynchronousJiraRestClientFactory
 import com.google.api.client.auth.oauth.OAuthParameters
 import com.google.api.client.http.GenericUrl
+import com.intellij.openapi.diagnostic.Logger
 import com.mongodb.quickpr.config.JiraConfig
+import com.mongodb.quickpr.core.CommonError
 import com.mongodb.quickpr.core.Err
 import com.mongodb.quickpr.core.Ok
 import com.mongodb.quickpr.core.SafeError
@@ -17,7 +20,10 @@ import java.security.spec.InvalidKeySpecException
 
 const val JIRA_HOME = "https://jira.mongodb.org"
 
+private val logger = Logger.getInstance(JiraClient::class.java)
+
 class JiraClient(private val jiraConfig: JiraConfig) {
+    @Suppress("ReturnCount")
     fun getIssue(issueNumber: String): SafeResult<Issue, SafeError> {
 
         val factory = AsynchronousJiraRestClientFactory()
@@ -55,9 +61,22 @@ class JiraClient(private val jiraConfig: JiraConfig) {
             restClient.use { restClient ->
                 return Ok(restClient.issueClient.getIssue(issueNumber).claim())
             }
-        } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
-            // TODO: check
-            return Err(JiraError.ISSUE_NOT_FOUND)
+        } catch (e: RestClientException) {
+            if (e.statusCode.isPresent) {
+                @Suppress("MagicNumber")
+                val error: SafeError = when (e.statusCode.get()) {
+                    401 -> JiraError.AUTHENTICATION_ERROR
+                    403 -> JiraError.AUTHORIZATION_ERROR
+                    404 -> JiraError.ISSUE_NOT_FOUND
+                    else -> {
+                        logger.error(e)
+                        CommonError.UNKNOWN
+                    }
+                }
+                return Err(error)
+            }
+            logger.error(e)
+            return Err(CommonError.UNKNOWN)
         }
     }
 
@@ -95,5 +114,7 @@ class JiraClient(private val jiraConfig: JiraConfig) {
 }
 
 enum class JiraError : SafeError {
-    ISSUE_NOT_FOUND
+    ISSUE_NOT_FOUND,
+    AUTHENTICATION_ERROR,
+    AUTHORIZATION_ERROR,
 }

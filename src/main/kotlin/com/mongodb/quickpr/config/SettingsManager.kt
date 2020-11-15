@@ -55,7 +55,7 @@ object SettingsManager {
                     JiraConfigError.FILE_NOT_EXIST -> "JIRA config file does not exist"
                     JiraConfigError.FILE_CANNOT_BE_OPENED -> "JIRA config file cannot be opened"
                     JiraConfigError.INVALID_CONTENT -> "JIRA config file has invalid content"
-                    JiraError.ISSUE_NOT_FOUND -> "Bad JIRA credentials" // TODO: change
+                    JiraError.AUTHENTICATION_ERROR, JiraError.AUTHORIZATION_ERROR -> "Bad JIRA credentials"
                     else -> null
                 }
             }
