@@ -16,6 +16,7 @@ import org.kohsuke.github.GitHub
 import org.kohsuke.github.GitHubBuilder
 import java.io.BufferedReader
 import java.io.File
+import java.io.IOException
 import java.io.InputStreamReader
 
 private val logger = Logger.getInstance(GitUtils.javaClass)
@@ -26,7 +27,7 @@ object GitUtils {
             GitHubBuilder().withOAuthToken(
                 token
             ).build()
-        } catch (e: Exception) {
+        } catch (e: IOException) {
             return if (e.message != null && e.message!!.contains("Bad credentials")) {
                 Err(GitError.BAD_CREDENTIALS)
             } else {
@@ -55,7 +56,7 @@ object GitUtils {
             } else {
                 Err(GitError.NO_WRITE_PERMISSION_TO_REPO)
             }
-        } catch (e: Exception) {
+        } catch (e: IOException) {
             logger.error(e)
             return Err(CommonError.UNKNOWN)
         }
@@ -68,7 +69,7 @@ object GitUtils {
     fun getRemoteBranch(repo: GHRepository, branch: String): SafeResult<GHBranch, SafeError> {
         return try {
             Ok(repo.getBranch(branch))
-        } catch (e: Exception) {
+        } catch (e: IOException) {
             // TODO: add check
 //            logger.error(e)
             Err(GitError.REMOTE_BRANCH_NOT_FOUND)
@@ -124,6 +125,7 @@ object GitUtils {
         return Err(GitError.PR_NOT_FOUND)
     }
 
+    @Suppress("ReturnCount")
     fun createPr(
         repo: GHRepository,
         content: PRModel,
@@ -138,7 +140,7 @@ object GitUtils {
                     content.description
                 )
             )
-        } catch (e: Exception) {
+        } catch (e: IOException) {
             if (e.message != null && e.message!!.contains("A pull request already exists")) {
                 return Err(GitError.PR_ALREADY_EXISTS)
             } else {

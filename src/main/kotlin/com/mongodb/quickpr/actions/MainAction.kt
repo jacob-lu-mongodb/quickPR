@@ -92,7 +92,8 @@ class MainAction : AnAction {
                 GitError.NO_WRITE_PERMISSION_TO_REPO -> "Write permission to the remote repo is needed"
                 GitError.REMOTE_BRANCH_NOT_FOUND -> "Error accessing remote branch, did you push your commits?"
                 GitError.PR_ALREADY_EXISTS -> "There's already an open pull request"
-                JiraError.ISSUE_NOT_FOUND -> "Error fetching JIRA issue, invalid ticket number or issue with credentials?"
+                JiraError.ISSUE_NOT_FOUND ->
+                    "Error fetching JIRA issue, invalid ticket number or issue with credentials?"
                 else -> "An error occurred"
             }
         }

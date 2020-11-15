@@ -7,14 +7,21 @@ import com.intellij.ui.layout.panel
 import com.mongodb.quickpr.models.SettingsModel
 import javax.swing.JComponent
 
-class SettingsDialogWrapper(private val model: SettingsModel, private val validateSettings: (SettingsModel) -> String?) :
+class SettingsDialogWrapper(
+    private val model: SettingsModel,
+    private val validateSettings: (SettingsModel) -> String?
+) :
     DialogWrapper(true) {
     override fun createCenterPanel(): JComponent {
         return panel {
             row {
                 label("Please follow the steps")
                 link("here") {
-                    BrowserUtil.browse("https://wiki.corp.mongodb.com/display/MMS/Setup+the+MMS+Python+Environment#SetuptheMMSPythonEnvironment-GetOAuthAccessforJIRAScripts")
+                    BrowserUtil.browse(
+                        "https://wiki.corp.mongodb.com/display/MMS/" +
+                            "Setup+the+MMS+Python+Environment#" +
+                            "SetuptheMMSPythonEnvironment-GetOAuthAccessforJIRAScripts"
+                    )
                 }
                 label("to set up your JIRA config file")
             }

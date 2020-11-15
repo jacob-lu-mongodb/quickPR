@@ -19,42 +19,43 @@ const val JIRA_HOME = "https://jira.mongodb.org"
 
 class JiraClient(private val jiraConfig: JiraConfig) {
     fun getIssue(issueNumber: String): SafeResult<Issue, SafeError> {
+
+        val factory = AsynchronousJiraRestClientFactory()
+
+        // https://bitbucket.org/atlassian/jira-rest-java-client/src/master/test/src/test/java/samples/
+        // https://developer.atlassian.com/cloud/jira/platform/jira-rest-api-oauth-authentication/
+
+        val parameters = getOAuthParameters(
+            jiraConfig.accessToken,
+            jiraConfig.accessTokenSecret,
+            jiraConfig.consumerKey,
+            jiraConfig.privateKey
+        )
+
+        val restClient = factory.create(
+            URI(JIRA_HOME)
+        ) { builder ->
+            val methodField =
+                DefaultRequest.DefaultRequestBuilder::class.java.getDeclaredField("method")
+            methodField.isAccessible = true
+            val method = methodField.get(builder) as Request.Method
+
+            val uriField =
+                DefaultRequest.DefaultRequestBuilder::class.java.getDeclaredField("uri")
+            uriField.isAccessible = true
+            val uri = uriField.get(builder) as URI
+
+            parameters.computeNonce()
+            parameters.computeTimestamp()
+            parameters.computeSignature(method.name, GenericUrl(uri))
+
+            builder.setHeader("Authorization", parameters.authorizationHeader)
+        }
         try {
-            val factory = AsynchronousJiraRestClientFactory()
-
-            // https://bitbucket.org/atlassian/jira-rest-java-client/src/master/test/src/test/java/samples/
-            // https://developer.atlassian.com/cloud/jira/platform/jira-rest-api-oauth-authentication/
-
-            val parameters = getOAuthParameters(
-                jiraConfig.accessToken,
-                jiraConfig.accessTokenSecret,
-                jiraConfig.consumerKey,
-                jiraConfig.privateKey
-            )
-
-            val restClient = factory.create(
-                URI(JIRA_HOME)
-            ) { builder ->
-                val methodField =
-                    DefaultRequest.DefaultRequestBuilder::class.java.getDeclaredField("method")
-                methodField.isAccessible = true
-                val method = methodField.get(builder) as Request.Method
-
-                val uriField =
-                    DefaultRequest.DefaultRequestBuilder::class.java.getDeclaredField("uri")
-                uriField.isAccessible = true
-                val uri = uriField.get(builder) as URI
-
-                parameters.computeNonce()
-                parameters.computeTimestamp()
-                parameters.computeSignature(method.name, GenericUrl(uri))
-
-                builder.setHeader("Authorization", parameters.authorizationHeader)
-            }
             restClient.use { restClient ->
                 return Ok(restClient.issueClient.getIssue(issueNumber).claim())
             }
-        } catch (e: Exception) {
+        } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
             // TODO: check
             return Err(JiraError.ISSUE_NOT_FOUND)
         }

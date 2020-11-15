@@ -28,6 +28,7 @@ object SettingsManager {
         PropertiesComponent.getInstance().setValue(JIRA_CONFIG_SETTING, model.jiraConfigPath)
     }
 
+    @Suppress("ReturnCount")
     fun validateSettings(model: SettingsModel): String? {
         if (model.githubToken.isBlank()) {
             return "GitHub token is required"
@@ -53,7 +54,7 @@ object SettingsManager {
                 when (it) {
                     JiraConfigError.FILE_NOT_EXIST -> "JIRA config file does not exist"
                     JiraConfigError.FILE_CANNOT_BE_OPENED -> "JIRA config file cannot be opened"
-                    JiraConfigError.FILED_CANNOT_BE_PARSED -> "JIRA config file cannot be parsed"
+                    JiraConfigError.INVALID_CONTENT -> "JIRA config file cannot be parsed"
                     JiraError.ISSUE_NOT_FOUND -> "JIRA config file cannot be parsed" // TODO: change
                     else -> null
                 }
