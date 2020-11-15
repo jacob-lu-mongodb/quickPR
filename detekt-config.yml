@@ -11,4 +11,3 @@ build:
   weights:
     complexity: 2 # every rule of the complexity rule set should count as if two issues were found...
     LongParameterList: 1 # ...with the exception of the LongParameterList rule.
-    comments: 0 # comment rules are just a nice to know?!

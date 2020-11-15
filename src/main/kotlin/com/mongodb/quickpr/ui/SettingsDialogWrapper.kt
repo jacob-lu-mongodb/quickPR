@@ -12,6 +12,10 @@ class SettingsDialogWrapper(
     private val validateSettings: (SettingsModel) -> String?
 ) :
     DialogWrapper(true) {
+
+    private var lastValidatedModel: SettingsModel? = null
+    private var lastValidationResult: String? = null
+
     override fun createCenterPanel(): JComponent {
         return panel {
             row {
@@ -37,7 +41,17 @@ class SettingsDialogWrapper(
     }
 
     override fun doValidate(): ValidationInfo? {
-        return validateSettings(model)?.let { ValidationInfo(it) }
+        var validationResult: String?
+
+        if (lastValidatedModel != model) {
+            // cache the validation result to prevent excessive calls to API's
+            validationResult = validateSettings(model)
+            lastValidatedModel = model.copy()
+            lastValidationResult = validationResult
+        } else {
+            validationResult = lastValidationResult
+        }
+        return validationResult?.let { ValidationInfo(it) }
     }
 
     init {
