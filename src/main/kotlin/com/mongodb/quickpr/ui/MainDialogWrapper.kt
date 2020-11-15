@@ -9,9 +9,6 @@ import java.awt.event.ActionEvent
 import javax.swing.AbstractAction
 import javax.swing.Action
 import javax.swing.JComponent
-import javax.swing.JTextArea
-import javax.swing.event.DocumentEvent
-import javax.swing.event.DocumentListener
 
 class MainDialogWrapper(
     private val model: PRModel,
@@ -22,35 +19,14 @@ class MainDialogWrapper(
         return panel {
             row {
                 label("Title")
-                textField(model::title)
+                eagerBoundTextField(model::title)
             }
             row {
                 label("Description")
-                val textArea = JTextArea(model.description)
+                val textArea = eagerBoundTextArea(model::description).component
                 textArea.size = Dimension(800, 400)
                 textArea.lineWrap = true
                 textArea.wrapStyleWord = true
-                textArea()
-
-                textArea.document.addDocumentListener(
-                    object : DocumentListener {
-                        override fun insertUpdate(e: DocumentEvent?) {
-                            updateModel(e)
-                        }
-
-                        override fun removeUpdate(e: DocumentEvent?) {
-                            updateModel(e)
-                        }
-
-                        override fun changedUpdate(e: DocumentEvent?) {
-                            updateModel(e)
-                        }
-
-                        private fun updateModel(e: DocumentEvent?) {
-                            model.description = e!!.document.getText(0, e.document.length)
-                        }
-                    }
-                )
             }
         }
     }
