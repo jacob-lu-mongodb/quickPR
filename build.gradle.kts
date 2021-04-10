@@ -30,7 +30,7 @@ repositories {
 }
 dependencies {
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.16.0")
-    implementation("org.kohsuke:github-api:1.116")
+    implementation("org.kohsuke:github-api:1.127")
     implementation("org.yaml:snakeyaml:1.27")
     implementation("com.atlassian.jira:jira-rest-java-client-app:5.2.2") {
         exclude("org.slf4j")
