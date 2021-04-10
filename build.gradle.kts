@@ -36,7 +36,7 @@ dependencies {
         exclude("org.slf4j")
     }
     implementation("com.google.oauth-client:google-oauth-client:1.31.1")
-    implementation("com.google.http-client:google-http-client-apache-v2:1.38.0")
+    implementation("com.google.http-client:google-http-client-apache-v2:1.39.2")
 }
 
 // Configure gradle-intellij-plugin plugin.
