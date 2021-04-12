@@ -3,12 +3,9 @@
 ![Build](https://github.com/jacob-lu-mongodb/quickPR/workflows/Build/badge.svg)
 
 <!-- Plugin description -->
-Creates pull requests and pre-populates the title and description
-
-This specific section is a source for the [plugin.xml](/src/main/resources/META-INF/plugin.xml) file
-which will be extracted by the [Gradle](/build.gradle.kts) during the build process.
-
-To keep everything working, do not remove `<!-- ... -->` sections.
+Helps create pull requests by pre-populating title and description fields. Makes creating Evergreen
+patches for PR's easier by allowing users to save and manage patch configurations and streamlines
+the process by automatically adding patch info to pull requests.
 <!-- Plugin description end -->
 
 ## Installation
