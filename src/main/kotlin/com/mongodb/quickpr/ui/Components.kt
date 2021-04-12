@@ -56,9 +56,11 @@ private fun <T : JTextComponent> Cell.eagerBoundTextBasedComponent(
         .withEagerBoundTextBinding(binding)
 }
 
-private fun <T : JTextComponent> CellBuilder<T>.withEagerBoundTextBinding(
-    modelBinding: PropertyBinding<String>
-): CellBuilder<T> {
+fun <T : JTextComponent> addEagerBoundTextBinding(
+    component: T,
+    modelBinding: PropertyBinding<String>,
+    onReset: (() -> Unit) -> Any
+) {
     component.document.addDocumentListener(
         object : DocumentListener {
             override fun insertUpdate(e: DocumentEvent?) {
@@ -80,7 +82,12 @@ private fun <T : JTextComponent> CellBuilder<T>.withEagerBoundTextBinding(
     )
 
     onReset { component.text = modelBinding.get() }
-//    onIsModified { shouldSaveOnApply() && component.text != modelBinding.get() }
+}
 
+private fun <T : JTextComponent> CellBuilder<T>.withEagerBoundTextBinding(
+    modelBinding: PropertyBinding<String>
+): CellBuilder<T> {
+    addEagerBoundTextBinding(component, modelBinding, this::onReset)
+//    onIsModified { shouldSaveOnApply() && component.text != modelBinding.get() }
     return this
 }

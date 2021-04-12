@@ -10,6 +10,7 @@ import com.intellij.ui.components.JBTextArea
 import com.intellij.ui.components.JBTextField
 import com.intellij.ui.layout.CCFlags
 import com.intellij.ui.layout.panel
+import com.intellij.ui.layout.toBinding
 import com.intellij.util.containers.toArray
 import com.mongodb.quickpr.actions.SettingsAction
 import com.mongodb.quickpr.config.SettingsManager
@@ -55,7 +56,7 @@ class PatchDialogWrapper(
     private var taskArea: JBTextArea? = null
 
     private val TEXT_AREA_WIDTH = 800
-    private val TEXT_AREA_HEIGHT = 300
+    private val TEXT_AREA_HEIGHT = 250
 
     private val LAST_USED_PRESET = "*Last Used"
     private val UNSAVED_PRESET = "*Unsaved"
@@ -131,9 +132,15 @@ class PatchDialogWrapper(
                 )
             }
             row {
-                val textArea = eagerBoundTextArea(model::tasks).component
+                val textArea = JBTextArea()
+                textArea.text = model.tasks
+                addEagerBoundTextBinding(textArea, (model::tasks).toBinding(), this::onGlobalReset)
+                val scrollPane =
+                    scrollPane(textArea).constraints(CCFlags.pushY, CCFlags.growY).component
+                scrollPane.minimumSize = Dimension(TEXT_AREA_WIDTH, TEXT_AREA_HEIGHT)
+                scrollPane.size = Dimension(TEXT_AREA_WIDTH, TEXT_AREA_HEIGHT)
+                scrollPane.maximumSize = Dimension(TEXT_AREA_WIDTH, TEXT_AREA_HEIGHT)
 
-                textArea.size = Dimension(TEXT_AREA_WIDTH, TEXT_AREA_HEIGHT)
                 textArea.lineWrap = true
                 textArea.wrapStyleWord = true
 
@@ -149,9 +156,15 @@ class PatchDialogWrapper(
                 )
             }
             row {
-                val textArea = eagerBoundTextArea(model::stats).component
+                val textArea = JBTextArea()
+                textArea.text = model.stats
+                addEagerBoundTextBinding(textArea, (model::stats).toBinding(), this::onGlobalReset)
+                val scrollPane =
+                    scrollPane(textArea).constraints(CCFlags.pushY, CCFlags.growY).component
+                scrollPane.minimumSize = Dimension(TEXT_AREA_WIDTH, TEXT_AREA_HEIGHT)
+                scrollPane.size = Dimension(TEXT_AREA_WIDTH, TEXT_AREA_HEIGHT)
+                scrollPane.maximumSize = Dimension(TEXT_AREA_WIDTH, TEXT_AREA_HEIGHT)
 
-                textArea.size = Dimension(TEXT_AREA_WIDTH, TEXT_AREA_HEIGHT)
                 textArea.lineWrap = true
                 textArea.wrapStyleWord = true
                 textArea.isEnabled = false
