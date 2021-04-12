@@ -6,7 +6,7 @@
 
 ### Added
 
-- Feature for crating patches
+- Feature for creating patches
 
 ## [0.2.0] - 2020-12-28
 

@@ -4,13 +4,13 @@
 
 <!-- Plugin description -->
 Helps create pull requests by pre-populating title and description fields. Makes creating Evergreen
-patches for PR's easier by allowing users to save and manage patch configurations and streamlines
+patches for PR's easier by allowing users to save and manage patch configurations and streamlining
 the process by automatically adding patch info to pull requests.
 <!-- Plugin description end -->
 
 ## Installation
 
-Mkae sure that your Intellij's runtime JDK version is >= 11.
+Make sure that your Intellij's runtime JDK version is >= 11.
 See https://intellij-support.jetbrains.com/hc/en-us/articles/206544879-Selecting-the-JDK-version-the-IDE-will-run-under
 
 - Manually:
