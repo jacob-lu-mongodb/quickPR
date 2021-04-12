@@ -10,6 +10,8 @@ plugins {
     id("java")
     // Kotlin support
     id("org.jetbrains.kotlin.jvm") version "1.4.32"
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.4.32"
+
     // gradle-intellij-plugin - read more: https://github.com/JetBrains/gradle-intellij-plugin
     id("org.jetbrains.intellij") version "0.7.2"
     // gradle-changelog-plugin - read more: https://github.com/JetBrains/gradle-changelog-plugin
@@ -37,6 +39,9 @@ dependencies {
     }
     implementation("com.google.oauth-client:google-oauth-client:1.31.5")
     implementation("com.google.http-client:google-http-client-apache-v2:1.39.2")
+    implementation("com.google.http-client:google-http-client-gson:1.39.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.1.0")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:1.4.32")
 }
 
 // Configure gradle-intellij-plugin plugin.
@@ -49,7 +54,10 @@ intellij {
     updateSinceUntilBuild = true
 
     // Plugin Dependencies. Uses `platformPlugins` property from the gradle.properties file.
-    setPlugins(*properties("platformPlugins").split(',').map(String::trim).filter(String::isNotEmpty).toTypedArray())
+    setPlugins(
+        *properties("platformPlugins").split(',').map(String::trim).filter(String::isNotEmpty)
+            .toTypedArray()
+    )
 }
 
 // Configure gradle-changelog-plugin plugin.
@@ -128,6 +136,8 @@ tasks {
         // pluginVersion is based on the SemVer (https://semver.org) and supports pre-release labels, like 2.1.7-alpha.3
         // Specify pre-release label to publish the plugin in a custom Release Channel automatically. Read more:
         // https://plugins.jetbrains.com/docs/intellij/deployment.html#specifying-a-release-channel
-        channels(properties("pluginVersion").split('-').getOrElse(1) { "default" }.split('.').first())
+        channels(
+            properties("pluginVersion").split('-').getOrElse(1) { "default" }.split('.').first()
+        )
     }
 }

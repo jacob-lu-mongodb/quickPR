@@ -1,4 +1,4 @@
-package com.mongodb.quickpr.jira
+package com.mongodb.quickpr.services
 
 import com.atlassian.httpclient.apache.httpcomponents.DefaultRequest
 import com.atlassian.httpclient.api.Request
@@ -9,11 +9,7 @@ import com.google.api.client.auth.oauth.OAuthParameters
 import com.google.api.client.http.GenericUrl
 import com.intellij.openapi.diagnostic.Logger
 import com.mongodb.quickpr.config.JiraConfig
-import com.mongodb.quickpr.core.CommonError
-import com.mongodb.quickpr.core.Err
-import com.mongodb.quickpr.core.Ok
-import com.mongodb.quickpr.core.SafeError
-import com.mongodb.quickpr.core.SafeResult
+import com.mongodb.quickpr.core.*
 import java.net.URI
 import java.security.NoSuchAlgorithmException
 import java.security.spec.InvalidKeySpecException

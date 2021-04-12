@@ -1,23 +1,14 @@
-package com.mongodb.quickpr.github
+package com.mongodb.quickpr.git
 
 import com.intellij.openapi.diagnostic.Logger
-import com.mongodb.quickpr.core.CommonError
-import com.mongodb.quickpr.core.Err
-import com.mongodb.quickpr.core.Ok
-import com.mongodb.quickpr.core.SafeError
-import com.mongodb.quickpr.core.SafeResult
-import com.mongodb.quickpr.core.andThen
+import com.mongodb.quickpr.core.*
 import com.mongodb.quickpr.models.PRModel
-import org.kohsuke.github.GHBranch
-import org.kohsuke.github.GHPermissionType
-import org.kohsuke.github.GHPullRequest
-import org.kohsuke.github.GHRepository
-import org.kohsuke.github.GitHub
-import org.kohsuke.github.GitHubBuilder
+import org.kohsuke.github.*
 import java.io.BufferedReader
 import java.io.File
 import java.io.IOException
 import java.io.InputStreamReader
+import java.util.stream.Collectors
 
 private val logger = Logger.getInstance(GitUtils.javaClass)
 
@@ -51,7 +42,11 @@ object GitUtils {
             val permission =
                 repo.getPermission(github.myself)
 
-            return if (listOf(GHPermissionType.ADMIN, GHPermissionType.WRITE).contains(permission)) {
+            return if (listOf(
+                    GHPermissionType.ADMIN,
+                    GHPermissionType.WRITE
+                ).contains(permission)
+            ) {
                 Ok(repo)
             } else {
                 Err(GitError.NO_WRITE_PERMISSION_TO_REPO)
@@ -94,6 +89,58 @@ object GitUtils {
         }
     }
 
+    fun getMergeBase(
+        workingDir: String,
+        branch1: String,
+        branch2: String
+    ): SafeResult<String, SafeError> {
+        val process =
+            Runtime.getRuntime()
+                .exec("git merge-base $branch1 $branch2", null, File(workingDir))
+        process.waitFor()
+
+        BufferedReader(
+            InputStreamReader(process.inputStream)
+        ).use {
+            val line = it.readLine()
+
+            return when {
+                line.isBlank() -> Err(CommonError.UNKNOWN)
+                line.contains("not a git repository") -> Err(GitError.NOT_GIT_REPO)
+                else -> Ok(line)
+            }
+        }
+    }
+
+    fun getDiff(
+        workingDir: String,
+        base: String,
+        vararg diffArgs: String
+    ): SafeResult<String, SafeError> {
+        val process =
+            Runtime.getRuntime()
+                .exec(
+                    "git diff $base --no-ext-diff ${diffArgs.joinToString(" ")}",
+                    null,
+                    File(workingDir)
+                )
+        process.waitFor()
+
+        BufferedReader(
+            InputStreamReader(process.inputStream)
+        ).use {
+            val line = it.lines().collect(Collectors.toList())
+                .joinToString(System.lineSeparator()) + System.lineSeparator()
+
+            return when {
+                line.isBlank() -> Err(CommonError.UNKNOWN)
+                line.contains("not a git repository") -> Err(GitError.NOT_GIT_REPO)
+                else -> Ok(line)
+            }
+        }
+    }
+
+
     fun getRepoPath(workingDir: String): SafeResult<String, SafeError> {
         val process =
             Runtime.getRuntime().exec("git remote -v", null, File(workingDir))
@@ -118,10 +165,28 @@ object GitUtils {
         }
     }
 
-    fun getPrByBranch(branchName: String): SafeResult<GHPullRequest, SafeError> {
+    fun getCommitHash(workingDir: String): String {
+        val process =
+            Runtime.getRuntime().exec("git rev-parse HEAD", null, File(workingDir))
+        process.waitFor()
+
+        BufferedReader(
+            InputStreamReader(process.inputStream)
+        ).use {
+            val line = it.readLine()
+
+            return line
+        }
+    }
+
+    fun getPrByBranch(
+        repo: GHRepository,
+        branchName: String
+    ): SafeResult<GHPullRequest, SafeError> {
         // TODO: find a more efficient way of getting existing PR
-        // val existingPr = repo.getPullRequests(GHIssueState.OPEN)
-        //      .firstOrNull { pr -> pr.head.ref == currentGitBranch && pr.state == GHIssueState.OPEN }
+//        repo.queryPullRequests()
+//        val existingPr = repo.getPullRequests(GHIssueState.OPEN)
+//            .firstOrNull { pr -> pr.head.ref == currentGitBranch && pr.state == GHIssueState.OPEN }
         return Err(GitError.PR_NOT_FOUND)
     }
 

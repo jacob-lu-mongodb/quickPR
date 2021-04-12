@@ -4,21 +4,23 @@ import com.intellij.ide.util.PropertiesComponent
 import com.mongodb.quickpr.core.Err
 import com.mongodb.quickpr.core.andThen
 import com.mongodb.quickpr.core.mapError
-import com.mongodb.quickpr.github.GitError
-import com.mongodb.quickpr.github.GitUtils
-import com.mongodb.quickpr.jira.JiraClient
-import com.mongodb.quickpr.jira.JiraError
+import com.mongodb.quickpr.git.GitError
+import com.mongodb.quickpr.git.GitUtils
 import com.mongodb.quickpr.models.SettingsModel
+import com.mongodb.quickpr.services.JiraClient
+import com.mongodb.quickpr.services.JiraError
 import org.apache.commons.io.FilenameUtils
 
 private const val PREFIX = "QUICKPR_"
 private const val GITHUB_TOKEN_SETTING = PREFIX + "GITHUB_TOKEN"
 private const val JIRA_CONFIG_SETTING = PREFIX + "JIRA_CONFIG"
+private const val EVG_CONFIG_SETTING = PREFIX + "EVG_CONFIG"
 
 object SettingsManager {
     fun loadSettings(): SettingsModel {
         return SettingsModel(
             PropertiesComponent.getInstance().getValue(JIRA_CONFIG_SETTING, ""),
+            PropertiesComponent.getInstance().getValue(EVG_CONFIG_SETTING, ""),
             PropertiesComponent.getInstance().getValue(GITHUB_TOKEN_SETTING, "")
         )
     }
@@ -26,6 +28,7 @@ object SettingsManager {
     fun saveSettings(model: SettingsModel) {
         PropertiesComponent.getInstance().setValue(GITHUB_TOKEN_SETTING, model.githubToken)
         PropertiesComponent.getInstance().setValue(JIRA_CONFIG_SETTING, model.jiraConfigPath)
+        PropertiesComponent.getInstance().setValue(EVG_CONFIG_SETTING, model.evgConfigPath)
     }
 
     @Suppress("ReturnCount")
@@ -35,6 +38,9 @@ object SettingsManager {
         }
         if (model.jiraConfigPath.isBlank()) {
             return "JIRA config is required"
+        }
+        if (model.evgConfigPath.isBlank()) {
+            return "Evergreen config is required"
         }
 
         val githubResult = GitUtils.getGithub(model.githubToken).mapError {
@@ -69,5 +75,9 @@ object SettingsManager {
 
     fun getDefaultJiraConfigFilePath(): String {
         return FilenameUtils.concat(System.getProperty("user.home"), ".mdbutils/config.yaml")
+    }
+
+    fun getDefaultEvgConfigFilePath(): String {
+        return FilenameUtils.concat(System.getProperty("user.home"), ".evergreen.yml")
     }
 }

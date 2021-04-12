@@ -23,8 +23,8 @@ class SettingsDialogWrapper(
                 link("here") {
                     BrowserUtil.browse(
                         "https://wiki.corp.mongodb.com/display/MMS/" +
-                            "Setup+the+MMS+Python+Environment#" +
-                            "SetuptheMMSPythonEnvironment-GetOAuthAccessforJIRAScripts"
+                                "Setup+the+MMS+Python+Environment#" +
+                                "SetuptheMMSPythonEnvironment-GetOAuthAccessforJIRAScripts"
                     )
                 }
                 label("to set up your JIRA config file")
@@ -32,6 +32,10 @@ class SettingsDialogWrapper(
             row {
                 label("JIRA Config File")
                 eagerBoundTextField(model::jiraConfigPath)
+            }
+            row {
+                label("Evergreen Config File")
+                eagerBoundTextField(model::evgConfigPath)
             }
             row {
                 label("GitHub Token")

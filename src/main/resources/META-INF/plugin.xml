@@ -28,4 +28,12 @@
       text="QuickPR Settings">
     </action>
   </actions>
+  <extensions defaultExtensionNs="com.intellij">
+    <!-- Declare the application level service -->
+    <applicationService serviceImplementation="com.mongodb.quickpr.services.AppService" />
+
+    <!-- Declare the project level service -->
+<!--    <projectService serviceInterface="mypackage.MyProjectService"-->
+<!--      serviceImplementation="mypackage.MyProjectServiceImpl" />-->
+  </extensions>
 </idea-plugin>

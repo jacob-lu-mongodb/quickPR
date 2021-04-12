@@ -1,4 +1,4 @@
-package com.mongodb.quickpr.jira
+package com.mongodb.quickpr.services
 
 import com.google.api.client.auth.oauth.OAuthGetAccessToken
 import com.google.api.client.auth.oauth.OAuthRsaSigner

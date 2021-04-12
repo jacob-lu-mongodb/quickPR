@@ -25,6 +25,9 @@ class SettingsAction : AnAction {
         if (newSettings.jiraConfigPath.isBlank()) {
             newSettings.jiraConfigPath = SettingsManager.getDefaultJiraConfigFilePath()
         }
+        if (newSettings.evgConfigPath.isBlank()) {
+            newSettings.evgConfigPath = SettingsManager.getDefaultEvgConfigFilePath()
+        }
 
         if (SettingsDialogWrapper(newSettings, SettingsManager::validateSettings).showAndGet()) {
             // user pressed OK

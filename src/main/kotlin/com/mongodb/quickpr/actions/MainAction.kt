@@ -6,20 +6,18 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.ui.Messages
 import com.mongodb.quickpr.config.JiraConfig
 import com.mongodb.quickpr.config.SettingsManager
-import com.mongodb.quickpr.core.Err
-import com.mongodb.quickpr.core.Ok
-import com.mongodb.quickpr.core.SafeError
-import com.mongodb.quickpr.core.mapError
-import com.mongodb.quickpr.core.runResultTry
-import com.mongodb.quickpr.github.GitError
-import com.mongodb.quickpr.github.GitUtils
-import com.mongodb.quickpr.jira.JIRA_HOME
-import com.mongodb.quickpr.jira.JiraClient
-import com.mongodb.quickpr.jira.JiraError
+import com.mongodb.quickpr.core.*
+import com.mongodb.quickpr.git.GitError
+import com.mongodb.quickpr.git.GitUtils
 import com.mongodb.quickpr.models.PRModel
+import com.mongodb.quickpr.services.*
 import com.mongodb.quickpr.ui.MainDialogWrapper
+import com.mongodb.quickpr.ui.PatchDialogWrapper
+import org.kohsuke.github.GHIssueState
+import org.kohsuke.github.GHPullRequest
 import org.kohsuke.github.GHRepository
 import javax.swing.Icon
+
 
 class MainAction : AnAction {
     /**
@@ -70,18 +68,18 @@ class MainAction : AnAction {
                     .abortOnError()
             val jiraIssue = JiraClient(jiraConfig).getIssue(branchName).abortOnError()
 
-            val existingPrResult = GitUtils.getPrByBranch(branchName)
-            if (existingPrResult is Ok) {
-                BrowserUtil.browse(existingPrResult.value.htmlUrl)
-                abortWithError(GitError.PR_ALREADY_EXISTS)
+            val prState = getAppState().prStates.getPRState(repo.name, branchName)
+            val pr = if (prState == null) null else repo.getPullRequest(prState.prNumber)
+
+            if (pr == null || pr.state != GHIssueState.OPEN) {
+                val prModel = PRModel(
+                    "$branchName: ${jiraIssue.summary}",
+                    JIRA_HOME + "/browse/" + branchName + "\n\n" + jiraIssue.description!!
+                )
+                showCreatePRUI(repo, prModel, branchName)
+            } else {
+                showExistingPRUI(pr, prState!!.lastPatchInfo, projectPath, branchName)
             }
-
-            val prModel = PRModel(
-                "$branchName: ${jiraIssue.summary}",
-                JIRA_HOME + "/browse/" + branchName + "\n\n" + jiraIssue.description!!
-            )
-            showUi(repo, prModel, branchName)
-
             Ok("")
         }.mapError {
             when (it) {
@@ -102,7 +100,16 @@ class MainAction : AnAction {
         }
     }
 
-    private fun showUi(
+    private fun showExistingPRUI(
+        pr: GHPullRequest,
+        lastPatchInfo: AppService.PatchInfo?,
+        projectPath: String,
+        branchName: String
+    ) {
+        PatchDialogWrapper(pr, lastPatchInfo, projectPath, branchName).show()
+    }
+
+    private fun showCreatePRUI(
         repo: GHRepository,
         prModel: PRModel,
         gitBranch: String
@@ -117,6 +124,11 @@ class MainAction : AnAction {
 
             return when (prResult) {
                 is Ok -> {
+                    getAppState().prStates.setPRState(
+                        repo.name,
+                        gitBranch,
+                        AppService.PRState(prResult.value.number)
+                    )
                     BrowserUtil.browse(prResult.value.htmlUrl)
                     true
                 }

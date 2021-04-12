@@ -10,14 +10,14 @@ import javax.swing.AbstractAction
 import javax.swing.Action
 import javax.swing.JComponent
 
-const val TEXT_AREA_WIDTH = 800
-const val TEXT_AREA_HEIGHT = 400
-
 class MainDialogWrapper(
     private val model: PRModel,
     private val doAction: () -> Boolean
 ) :
     DialogWrapper(true) {
+    private val TEXT_AREA_WIDTH = 800
+    private val TEXT_AREA_HEIGHT = 400
+
     override fun createCenterPanel(): JComponent {
         return panel {
             row {

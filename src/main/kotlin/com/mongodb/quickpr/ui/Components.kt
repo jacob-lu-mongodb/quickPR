@@ -25,7 +25,8 @@ fun Cell.eagerBoundTextArea(
 fun Cell.eagerBoundPasswordField(
     prop: KMutableProperty0<String>,
     columns: Int? = null
-): CellBuilder<JBPasswordField> = eagerBoundTextBasedField(JBPasswordField::class.java, prop, columns)
+): CellBuilder<JBPasswordField> =
+    eagerBoundTextBasedField(JBPasswordField::class.java, prop, columns)
 
 private fun <T : JTextField> Cell.eagerBoundTextBasedField(
     clazz: Class<T>,
@@ -79,6 +80,7 @@ private fun <T : JTextComponent> CellBuilder<T>.withEagerBoundTextBinding(
     )
 
     onReset { component.text = modelBinding.get() }
+//    onIsModified { shouldSaveOnApply() && component.text != modelBinding.get() }
 
     return this
 }
