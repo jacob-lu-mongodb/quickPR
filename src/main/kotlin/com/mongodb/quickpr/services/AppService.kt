@@ -32,8 +32,7 @@ class AppService : PersistentStateComponent<AppService.State> {
         var patchConfig: UserPatchConfig = UserPatchConfig()
     )
 
-    data class PRState(var prNumber: Int = 0, var lastPatchInfo: PatchInfo? = null) {
-    }
+    data class PRState(var prNumber: Int = 0, var lastPatchInfo: PatchInfo? = null)
 
     data class PRStateMap(var map: MutableMap<String, MutableMap<String, PRState>> = mutableMapOf()) {
 
@@ -85,7 +84,7 @@ class AppService : PersistentStateComponent<AppService.State> {
 //    }
 
     override fun getState(): State? {
-        return state;
+        return state
     }
 
     override fun loadState(state: State) {

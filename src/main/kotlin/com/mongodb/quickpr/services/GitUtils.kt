@@ -140,7 +140,6 @@ object GitUtils {
         }
     }
 
-
     fun getRepoPath(workingDir: String): SafeResult<String, SafeError> {
         val process =
             Runtime.getRuntime().exec("git remote -v", null, File(workingDir))

@@ -23,8 +23,8 @@ class SettingsDialogWrapper(
                 link("here") {
                     BrowserUtil.browse(
                         "https://wiki.corp.mongodb.com/display/MMS/" +
-                                "Setup+the+MMS+Python+Environment#" +
-                                "SetuptheMMSPythonEnvironment-GetOAuthAccessforJIRAScripts"
+                            "Setup+the+MMS+Python+Environment#" +
+                            "SetuptheMMSPythonEnvironment-GetOAuthAccessforJIRAScripts"
                     )
                 }
                 label("to set up your JIRA config file")

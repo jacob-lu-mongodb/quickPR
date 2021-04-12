@@ -20,17 +20,16 @@ const val LEGACY_API_BASE = "https://evergreen.mongodb.com/api/"
 
 object EvergreenUtils {
     fun getAliasTasks(proj: String, alias: String) {
-
     }
 }
 
 class EvergreenClient(private val apiUser: String, private val apiKey: String) {
 
     fun getAliasTasks(proj: String, alias: String, versionId: String): List<PatchVariantTasks> {
-        val requestFactory = NetHttpTransport().createRequestFactory();
+        val requestFactory = NetHttpTransport().createRequestFactory()
         val request = requestFactory.buildGetRequest(
             GenericUrl(API_BASE + "projects/test_alias?&include_deps=true&version=" + versionId + "&alias=" + alias)
-        );
+        )
 
         val headers = request.headers
         headers.set("Api-User", apiUser)
@@ -50,10 +49,10 @@ class EvergreenClient(private val apiUser: String, private val apiKey: String) {
     }
 
     fun getLatestVersionId(proj: String): String {
-        val requestFactory = NetHttpTransport().createRequestFactory();
+        val requestFactory = NetHttpTransport().createRequestFactory()
         val request = requestFactory.buildGetRequest(
             GenericUrl(API_BASE + "projects/" + proj + "/versions")
-        );
+        )
 
         val headers = request.headers
         headers.set("Api-User", apiUser)
@@ -70,7 +69,7 @@ class EvergreenClient(private val apiUser: String, private val apiKey: String) {
         gitHash: String,
         gitDiff: String
     ): String {
-        val requestFactory = NetHttpTransport().createRequestFactory();
+        val requestFactory = NetHttpTransport().createRequestFactory()
 
         val data = LinkedHashMap<String, Any>()
         data["project"] = project
@@ -81,7 +80,7 @@ class EvergreenClient(private val apiUser: String, private val apiKey: String) {
 
         val request = requestFactory.buildPutRequest(
             GenericUrl(LEGACY_API_BASE + "patches/"), content
-        );
+        )
 
         val headers = request.headers
         headers.set("Api-User", apiUser)
@@ -94,7 +93,7 @@ class EvergreenClient(private val apiUser: String, private val apiKey: String) {
     }
 
     fun finalizePatch(patchId: String): String {
-        val requestFactory = NetHttpTransport().createRequestFactory();
+        val requestFactory = NetHttpTransport().createRequestFactory()
 
         val data = LinkedHashMap<String, String>()
         data["patch_id"] = patchId
@@ -103,7 +102,7 @@ class EvergreenClient(private val apiUser: String, private val apiKey: String) {
 
         val request = requestFactory.buildPostRequest(
             GenericUrl(LEGACY_API_BASE + "patches/" + patchId), content
-        );
+        )
 
         val headers = request.headers
         headers.set("Api-User", apiUser)
@@ -121,7 +120,7 @@ class EvergreenClient(private val apiUser: String, private val apiKey: String) {
         patchId: String,
         tasks: Collection<PatchVariantTasks>,
     ): String {
-        val requestFactory = NetHttpTransport().createRequestFactory();
+        val requestFactory = NetHttpTransport().createRequestFactory()
 
         val data = LinkedHashMap<String, Any>()
         data["variants"] = tasks
@@ -133,7 +132,7 @@ class EvergreenClient(private val apiUser: String, private val apiKey: String) {
 
         val request = requestFactory.buildPostRequest(
             GenericUrl(API_BASE + "patches/" + patchId + "/configure"), content
-        );
+        )
 
         val headers = request.headers
         headers.set("Api-User", apiUser)
@@ -144,5 +143,4 @@ class EvergreenClient(private val apiUser: String, private val apiKey: String) {
 
         return json.jsonObject["version_id"]!!.jsonPrimitive.content
     }
-
 }

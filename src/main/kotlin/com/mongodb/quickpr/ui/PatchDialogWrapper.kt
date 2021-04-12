@@ -38,7 +38,6 @@ import javax.swing.JComponent
 import javax.swing.event.DocumentEvent
 import javax.swing.event.DocumentListener
 
-
 // TODO: detect push and remind user
 class PatchDialogWrapper(
     private val pr: GHPullRequest,
@@ -77,7 +76,7 @@ class PatchDialogWrapper(
         private fun update(e: DocumentEvent?) {
 //            model.preset = ""
 //            presetCombo!!.item = ""
-////            e!!.document.getText(0, e.document.length)
+// //            e!!.document.getText(0, e.document.length)
         }
     }
 
@@ -128,7 +127,7 @@ class PatchDialogWrapper(
             row {
                 label(
                     "Variants and Tasks (JSON with format [{id: <variant>, tasks: [<task>...]}...]." +
-                            " Use a single \"*\" entry to select all tasks within a variant)"
+                        " Use a single \"*\" entry to select all tasks within a variant)"
                 )
             }
             row {
@@ -283,7 +282,7 @@ class PatchDialogWrapper(
             "mms" -> "mms"
             else -> ""
         }
-        //TODO: handle others
+        // TODO: handle others
     }
 
     fun doAction(): Boolean {
@@ -399,4 +398,3 @@ class PatchDialogWrapper(
         title = "Create Patch"
     }
 }
-
