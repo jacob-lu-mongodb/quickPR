@@ -1,9 +1,19 @@
 package com.mongodb.quickpr.git
 
 import com.intellij.openapi.diagnostic.Logger
-import com.mongodb.quickpr.core.*
+import com.mongodb.quickpr.core.CommonError
+import com.mongodb.quickpr.core.Err
+import com.mongodb.quickpr.core.Ok
+import com.mongodb.quickpr.core.SafeError
+import com.mongodb.quickpr.core.SafeResult
+import com.mongodb.quickpr.core.andThen
 import com.mongodb.quickpr.models.PRModel
-import org.kohsuke.github.*
+import org.kohsuke.github.GHBranch
+import org.kohsuke.github.GHPermissionType
+import org.kohsuke.github.GHPullRequest
+import org.kohsuke.github.GHRepository
+import org.kohsuke.github.GitHub
+import org.kohsuke.github.GitHubBuilder
 import java.io.BufferedReader
 import java.io.File
 import java.io.IOException

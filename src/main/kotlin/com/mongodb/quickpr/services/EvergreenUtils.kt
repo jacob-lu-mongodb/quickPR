@@ -10,7 +10,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
-import java.util.*
+import java.util.Base64
 import java.util.stream.Collectors
 
 private val logger = Logger.getInstance(EvergreenUtils.javaClass)
