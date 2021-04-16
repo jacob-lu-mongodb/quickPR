@@ -25,6 +25,7 @@ object SettingsManager {
         )
     }
 
+    // TODO: https://plugins.jetbrains.com/docs/intellij/persisting-sensitive-data.html
     fun saveSettings(model: SettingsModel) {
         PropertiesComponent.getInstance().setValue(GITHUB_TOKEN_SETTING, model.githubToken)
         PropertiesComponent.getInstance().setValue(JIRA_CONFIG_SETTING, model.jiraConfigPath)

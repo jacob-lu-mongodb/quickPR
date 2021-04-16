@@ -13,6 +13,8 @@ import kotlinx.serialization.json.jsonPrimitive
 import java.util.Base64
 import java.util.stream.Collectors
 
+// https://github.com/evergreen-ci/evergreen/wiki/REST-V2-Usage
+
 private val logger = Logger.getInstance(EvergreenUtils.javaClass)
 
 const val API_BASE = "https://evergreen.mongodb.com/api/rest/v2/"

@@ -34,6 +34,7 @@ class AppService : PersistentStateComponent<AppService.State> {
 
     data class PRState(var prNumber: Int = 0, var lastPatchInfo: PatchInfo? = null)
 
+    // TODO: https://stackoverflow.com/questions/47359496/kotlin-data-class-copy-method-not-deep-copying-all-members
     data class PRStateMap(var map: MutableMap<String, MutableMap<String, PRState>> = mutableMapOf()) {
 
 //        override fun equals(other: Any?): Boolean {
