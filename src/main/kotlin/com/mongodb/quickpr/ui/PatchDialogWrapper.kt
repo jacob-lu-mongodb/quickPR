@@ -50,7 +50,7 @@ class PatchDialogWrapper(
     private var diff: String = ""
     private var mergeBase: String = ""
 
-    //https://jetbrains.design/intellij/controls/combo_box/
+    // https://jetbrains.design/intellij/controls/combo_box/
     private var presetCombo: ComboBox<String>? = null
     private var aliasField: JBTextField? = null
     private var taskArea: JBTextArea? = null
@@ -128,7 +128,7 @@ class PatchDialogWrapper(
             row {
                 label(
                     "Variants and Tasks (JSON with format [{id: <variant>, tasks: [<task>...]}...]." +
-                            " Use a single \"*\" entry to select all tasks within a variant)"
+                        " Use a single \"*\" entry to select all tasks within a variant)"
                 )
             }
             row {
