@@ -10,7 +10,7 @@ plugins {
     id("java")
     // Kotlin support
     id("org.jetbrains.kotlin.jvm") version "1.4.32"
-    id("org.jetbrains.kotlin.plugin.serialization") version "1.4.32"
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.5.0"
 
     // gradle-intellij-plugin - read more: https://github.com/JetBrains/gradle-intellij-plugin
     id("org.jetbrains.intellij") version "0.7.2"
@@ -32,7 +32,7 @@ repositories {
 }
 dependencies {
     detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.16.0")
-    implementation("org.kohsuke:github-api:1.127")
+    implementation("org.kohsuke:github-api:1.128")
     implementation("org.yaml:snakeyaml:1.28")
     implementation("com.atlassian.jira:jira-rest-java-client-app:5.2.2") {
         exclude("org.slf4j")
