@@ -31,7 +31,7 @@ repositories {
     jcenter()
 }
 dependencies {
-    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.16.0")
+    detektPlugins("io.gitlab.arturbosch.detekt:detekt-formatting:1.17.0")
     implementation("org.kohsuke:github-api:1.128")
     implementation("org.yaml:snakeyaml:1.28")
     implementation("com.atlassian.jira:jira-rest-java-client-app:5.2.2") {
