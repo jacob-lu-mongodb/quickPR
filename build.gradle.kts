@@ -41,7 +41,7 @@ dependencies {
     implementation("com.google.http-client:google-http-client-apache-v2:1.39.2-sp.1")
     implementation("com.google.http-client:google-http-client-gson:1.39.2-sp.1")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.1")
-    implementation("org.jetbrains.kotlin:kotlin-reflect:1.5.10")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:1.5.20")
 }
 
 // Configure gradle-intellij-plugin plugin.
