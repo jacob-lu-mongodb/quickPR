@@ -8,7 +8,7 @@ on:
 
 jobs:
 
-  Prepare and publish the plugin to the Marketplace repository
+  #Prepare and publish the plugin to the Marketplace repository
   release:
     name: Publish Plugin
     runs-on: ubuntu-latest
