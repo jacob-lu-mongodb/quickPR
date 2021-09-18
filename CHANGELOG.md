@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- Support for Intellij 2021.2
+
+## [2.0.0] - 2021-04-16
+
 ### Added
 
 - Feature for creating patches
