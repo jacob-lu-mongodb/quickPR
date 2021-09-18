@@ -22,6 +22,7 @@ version = properties("pluginVersion")
 // Configure project's dependencies
 repositories {
     mavenCentral()
+    jcenter()
 }
 dependencies {
     implementation("org.kohsuke:github-api:1.133")
