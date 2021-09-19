@@ -138,7 +138,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v2.2.4
         with:
-          name: "${{ steps.properties.outputs.name }} - ${{ steps.properties.outputs.version }}"
+          name: plugin-artifact
           path: ./build/distributions/*
 
   # Prepare a draft release for GitHub Releases page for the manual verification
@@ -163,18 +163,20 @@ jobs:
             --jq '.[] | select(.draft == true) | .id' \
             | xargs -I '{}' gh api -X DELETE repos/{owner}/{repo}/releases/{}
 
+      # Download plugin artifact provided by the previous job
+      - name: Download Artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: plugin-artifact
+          path: plugin-artifact
+
       # Create new release draft - which is not publicly visible and requires manual acceptance
       - name: Create Release Draft
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh release create v${{ needs.build.outputs.version }} \
+            ./plugin-artifact/*
             --draft \
             --title "v${{ needs.build.outputs.version }}" \
             --notes "${{ needs.build.outputs.changelog }}"
-
-      # Upload artifact as a release asset
-      - name: Upload Release Asset
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload ${{ needs.build.outputs.version }} ./build/distributions/*
