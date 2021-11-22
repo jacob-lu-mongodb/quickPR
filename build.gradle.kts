@@ -25,7 +25,7 @@ repositories {
     jcenter()
 }
 dependencies {
-    implementation("org.kohsuke:github-api:1.135")
+    implementation("org.kohsuke:github-api:1.300")
     implementation("org.yaml:snakeyaml:1.29")
     implementation("com.atlassian.jira:jira-rest-java-client-app:5.2.2") {
         exclude("org.slf4j")
