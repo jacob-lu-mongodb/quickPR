@@ -10,11 +10,16 @@ import com.mongodb.quickpr.config.SettingsManager.saveSettings
 import com.mongodb.quickpr.ui.SettingsDialogWrapper
 import javax.swing.Icon
 
-class SettingsAction(text: String?, description: String?, icon: Icon?) : AnAction(
-    text,
-    description,
-    icon
-) {
+class SettingsAction : AnAction {
+    // needed
+    constructor() : super()
+
+    constructor(text: String?, description: String?, icon: Icon?) : super(
+        text,
+        description,
+        icon
+    )
+
     override fun actionPerformed(event: AnActionEvent) {
         val savedSettings = loadSettings()
 
