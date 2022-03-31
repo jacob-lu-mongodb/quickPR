@@ -20,10 +20,7 @@ private val logger = Logger.getInstance(EvergreenUtils.javaClass)
 const val API_BASE = "https://evergreen.mongodb.com/api/rest/v2/"
 const val LEGACY_API_BASE = "https://evergreen.mongodb.com/api/"
 
-object EvergreenUtils {
-    fun getAliasTasks(proj: String, alias: String) {
-    }
-}
+object EvergreenUtils
 
 class EvergreenClient(private val apiUser: String, private val apiKey: String) {
 
@@ -43,9 +40,11 @@ class EvergreenClient(private val apiUser: String, private val apiKey: String) {
         return json.jsonArray.stream().map {
             val obj = it.jsonObject
             val variant = obj["Variant"]!!.jsonPrimitive.content
-            val tasks = obj["Tasks"]!!.jsonArray.stream().map { it.jsonPrimitive.content }.collect(
-                Collectors.toSet()
-            )
+            val tasks =
+                obj["Tasks"]!!.jsonArray.stream().map { taskJson -> taskJson.jsonPrimitive.content }
+                    .collect(
+                        Collectors.toSet()
+                    )
             PatchVariantTasks(variant, tasks)
         }.collect(Collectors.toList())
     }

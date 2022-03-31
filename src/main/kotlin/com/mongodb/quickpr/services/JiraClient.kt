@@ -58,8 +58,8 @@ class JiraClient(private val jiraConfig: JiraConfig) {
             builder.setHeader("Authorization", parameters.authorizationHeader)
         }
         try {
-            restClient.use { restClient ->
-                return Ok(restClient.issueClient.getIssue(issueNumber).claim())
+            restClient.use { client ->
+                return Ok(client.issueClient.getIssue(issueNumber).claim())
             }
         } catch (e: RestClientException) {
             if (e.statusCode.isPresent) {

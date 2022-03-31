@@ -188,17 +188,17 @@ object GitUtils {
         }
     }
 
-    fun getPrByBranch(
-        repo: GHRepository,
-        branchName: String
-    ): SafeResult<GHPullRequest, SafeError> {
-        // TODO: find a more efficient way of getting existing PR
-        // https://docs.github.com/en/rest/reference/search
-//        repo.queryPullRequests()
-//        val existingPr = repo.getPullRequests(GHIssueState.OPEN)
-//            .firstOrNull { pr -> pr.head.ref == currentGitBranch && pr.state == GHIssueState.OPEN }
-        return Err(GitError.PR_NOT_FOUND)
-    }
+//    fun getPrByBranch(
+//        repo: GHRepository,
+//        branchName: String
+//    ): SafeResult<GHPullRequest, SafeError> {
+//        // TODO: find a more efficient way of getting existing PR
+//        // https://docs.github.com/en/rest/reference/search
+////        repo.queryPullRequests()
+////        val existingPr = repo.getPullRequests(GHIssueState.OPEN)
+////            .firstOrNull { pr -> pr.head.ref == currentGitBranch && pr.state == GHIssueState.OPEN }
+//        return Err(GitError.PR_NOT_FOUND)
+//    }
 
     @Suppress("ReturnCount")
     fun createPr(

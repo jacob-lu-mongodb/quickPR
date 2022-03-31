@@ -128,7 +128,7 @@ class PatchDialogWrapper(
             row {
                 label(
                     "Variants and Tasks (JSON with format [{id: <variant>, tasks: [<task>...]}...]." +
-                        " Use a single \"*\" entry to select all tasks within a variant)"
+                            " Use a single \"*\" entry to select all tasks within a variant)"
                 )
             }
             row {
@@ -198,7 +198,7 @@ class PatchDialogWrapper(
     }
 
     fun getPatchConfig(): UserPatchConfig {
-        val aliases = (model.aliases ?: "").split(",").map { it.trim() }.toSet()
+        val aliases = model.aliases.split(",").map { it.trim() }.toSet()
 
         val type = object : TypeToken<MutableSet<PatchVariantTasks>>() {}.getType()
         val gson = Gson()
@@ -377,7 +377,7 @@ class PatchDialogWrapper(
     }
 
     init {
-        val result = runResultTry<Any, SafeError> {
+        runResultTry<Any, SafeError> {
             mergeBase =
                 GitUtils.getMergeBase(projectPath, "master@{upstream}", "HEAD").abortOnError()
             // TODO: get branch1 from /projects ?
