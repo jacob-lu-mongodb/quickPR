@@ -2,6 +2,7 @@ package com.mongodb.quickpr.actions
 
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
+import com.intellij.openapi.actionSystem.DataKey
 import com.intellij.openapi.actionSystem.impl.SimpleDataContext
 import com.mongodb.quickpr.config.SettingsManager
 import com.mongodb.quickpr.config.SettingsManager.loadSettings
@@ -9,15 +10,11 @@ import com.mongodb.quickpr.config.SettingsManager.saveSettings
 import com.mongodb.quickpr.ui.SettingsDialogWrapper
 import javax.swing.Icon
 
-class SettingsAction : AnAction {
-    constructor() : super()
-
-    constructor(text: String?, description: String?, icon: Icon?) : super(
-        text,
-        description,
-        icon
-    )
-
+class SettingsAction(text: String?, description: String?, icon: Icon?) : AnAction(
+    text,
+    description,
+    icon
+) {
     override fun actionPerformed(event: AnActionEvent) {
         val savedSettings = loadSettings()
 
@@ -47,7 +44,7 @@ class SettingsAction : AnAction {
                 AnActionEvent.createFromDataContext(
                     "code",
                     null,
-                    SimpleDataContext.getSimpleContext("dummy", "dummy")
+                    SimpleDataContext.getSimpleContext(DataKey.create("dummy"), "dummy")
                 )
             )
         }
