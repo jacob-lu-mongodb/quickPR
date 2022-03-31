@@ -33,7 +33,7 @@ dependencies {
     }
     implementation("com.google.oauth-client:google-oauth-client:1.33.1")
     implementation("com.google.http-client:google-http-client-apache-v2:1.41.5")
-    implementation("com.google.http-client:google-http-client-gson:1.41.4")
+    implementation("com.google.http-client:google-http-client-gson:1.41.5")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.2")
     implementation("org.jetbrains.kotlin:kotlin-reflect:1.6.10")
 }
