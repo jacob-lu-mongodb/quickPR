@@ -15,6 +15,22 @@
 
 ### Security
 
+## [2.0.3]
+### Added
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+
+## What's Changed
+* Changelog update - v2.0.2
+
 ## [2.0.2]
 ### Fixed
 - Support for Intellij 2021.2
