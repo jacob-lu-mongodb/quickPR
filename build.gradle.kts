@@ -31,7 +31,7 @@ dependencies {
     implementation("com.atlassian.jira:jira-rest-java-client-app:5.2.2") {
         exclude("org.slf4j")
     }
-    implementation("com.google.oauth-client:google-oauth-client:1.33.1")
+    implementation("com.google.oauth-client:google-oauth-client:1.33.3")
     implementation("com.google.http-client:google-http-client-apache-v2:1.41.8")
     implementation("com.google.http-client:google-http-client-gson:1.41.5")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.2")
