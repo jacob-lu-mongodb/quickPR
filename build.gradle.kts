@@ -9,7 +9,7 @@ plugins {
     // Kotlin support
     id("org.jetbrains.kotlin.jvm") version "1.6.20"
     // Gradle IntelliJ Plugin
-    id("org.jetbrains.intellij") version "1.5.2"
+    id("org.jetbrains.intellij") version "1.5.3"
     // Gradle Changelog Plugin
     id("org.jetbrains.changelog") version "1.3.1"
     // Gradle Qodana Plugin
@@ -31,11 +31,11 @@ dependencies {
     implementation("com.atlassian.jira:jira-rest-java-client-app:5.2.2") {
         exclude("org.slf4j")
     }
-    implementation("com.google.oauth-client:google-oauth-client:1.33.1")
+    implementation("com.google.oauth-client:google-oauth-client:1.33.3")
     implementation("com.google.http-client:google-http-client-apache-v2:1.41.8")
     implementation("com.google.http-client:google-http-client-gson:1.41.5")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.2")
-    implementation("org.jetbrains.kotlin:kotlin-reflect:1.6.20")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:1.6.21")
 }
 
 // Configure Gradle IntelliJ Plugin - read more: https://github.com/JetBrains/gradle-intellij-plugin
