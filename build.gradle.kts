@@ -32,7 +32,7 @@ dependencies {
         exclude("org.slf4j")
     }
     implementation("com.google.oauth-client:google-oauth-client:1.34.0")
-    implementation("com.google.http-client:google-http-client-apache-v2:1.41.8")
+    implementation("com.google.http-client:google-http-client-apache-v2:1.42.2")
     implementation("com.google.http-client:google-http-client-gson:1.41.8")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.3")
     implementation("org.jetbrains.kotlin:kotlin-reflect:1.6.21")
