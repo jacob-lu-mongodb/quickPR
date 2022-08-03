@@ -7,7 +7,7 @@ plugins {
     // Java support
     id("java")
     // Kotlin support
-    id("org.jetbrains.kotlin.jvm") version "1.6.21"
+    id("org.jetbrains.kotlin.jvm") version "1.7.10"
     // Gradle IntelliJ Plugin
     id("org.jetbrains.intellij") version "1.6.0"
     // Gradle Changelog Plugin
@@ -31,7 +31,7 @@ dependencies {
     implementation("com.atlassian.jira:jira-rest-java-client-app:5.2.2") {
         exclude("org.slf4j")
     }
-    implementation("com.google.oauth-client:google-oauth-client:1.34.0")
+    implementation("com.google.oauth-client:google-oauth-client:1.34.1")
     implementation("com.google.http-client:google-http-client-apache-v2:1.42.2")
     implementation("com.google.http-client:google-http-client-gson:1.41.8")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.3")
