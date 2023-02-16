@@ -75,8 +75,8 @@ tasks {
         }
         withType<KotlinCompile> {
             kotlinOptions.jvmTarget = it
-            kotlinOptions.apiVersion = "1.7"
-            kotlinOptions.languageVersion = "1.7"
+            kotlinOptions.apiVersion = "1.8"
+            kotlinOptions.languageVersion = "1.8"
         }
     }
 
