@@ -26,7 +26,7 @@ repositories {
 }
 
 dependencies {
-    implementation("org.kohsuke:github-api:1.313")
+    implementation("org.kohsuke:github-api:1.314")
     implementation("org.yaml:snakeyaml:2.0")
     implementation("com.atlassian.jira:jira-rest-java-client-app:5.2.2") {
         exclude("org.slf4j")
